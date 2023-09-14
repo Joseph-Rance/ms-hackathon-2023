@@ -57,14 +57,14 @@ class Environment:  # TODO: lots of made up values that need to be properly set!
         #  - VM availability so far (cumulative)
         #  - current number of VMs being used
 
-        return np.array([
+        return [
             self.get_data_to_process() / 1_000_000_000,  # we deal in GB
             self.get_data_processed() / 1_000_000_000,
             self.get_time() / 24,
             self.get_availability(),
             self.get_cum_availability(),
             self.get_current_vms(),
-        ])
+        ]
     def get_reward(self, alpha, beta, gamma):
         #  - #VM * minutes on peak
         #  - #VM * minutes off peak

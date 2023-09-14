@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 import torch.nn.functional as F
 from torch.optim import SGD
 from torch.utils.data import Dataset, DataLoader
@@ -56,7 +57,7 @@ def train(environment, model, num_episodes, config):
 
             optimiser.zero_grad()
 
-            z = self.model(torch.tensor(x))  # get model's prediction
+            z = self.model(torch.tensor(x.float()))  # get model's prediction
             loss = F.cross_entropy(z, y)  # get the loss between the model's prediction and the true value
 
             loss.backward()
@@ -75,9 +76,9 @@ def predict(model, state, action_space):
     best_value = -float("inf")
     best_action = None
     for a in action_space:
-        value = model(torch.tensor(np.append(state, a)))
+        value = model(torch.tensor(state + [a]).float())
         if best_value <= (val := value.item().cpu().numpy()):
             best_value = val
             best_action = a
 
-    return a
+    return best_action
