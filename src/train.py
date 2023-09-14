@@ -27,6 +27,8 @@ def train(environment, model, num_episodes, config, device="cpu"):
 
     model.train()  # put the model in "training mode"
 
+    losses = []
+
     for _ in tqdm(range(num_episodes)):  # each iteration is one day simulation
 
         # reward y[i] comes after state x[i]
@@ -52,7 +54,7 @@ def train(environment, model, num_episodes, config, device="cpu"):
         # this allows us to efficiently load the data into our model
         loader = DataLoader(dataset, batch_size=1, shuffle=True)
 
-        losses = []
+        losses.append(0)
 
         for x, y in loader:  # train on each pair of input, value in the loader
 
@@ -62,8 +64,10 @@ def train(environment, model, num_episodes, config, device="cpu"):
 
             z = model(x)  # get model's prediction
 
+            print(y)
+
             loss = F.cross_entropy(z, y)  # get the loss between the model's prediction and the true value
-            losses.append(loss.item())
+            losses[-1] += loss.item()
 
             loss.backward()
             optimiser.step()  # update the model based on the loss
