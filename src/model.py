@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-class MNISTCNN(nn.Module):
+class FullyConnected(nn.Module):
 
     def __init__(self, classes=10):
         super().__init__()

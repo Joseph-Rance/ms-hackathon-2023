@@ -30,7 +30,7 @@ def train(environment, model, num_episodes, config):
         for hour in range(24):
             s = environment.get_state_vector()
             num_vms = predict(model, s)
-            self.step(num_vms)
+            environment.step(num_vms)
             r = environment.get_reward(*config["reward_weights"])
             x.append(s)
             y.append(r)
