@@ -1,3 +1,8 @@
+import numpy as np
+import torch.nn.functional as F
+from torch.optim import SGD
+from torch.utils.data import Dataset
+
 class SimpleDataset(Dataset):
     def __init__(self, x, y):
         assert len(x) == len(y)

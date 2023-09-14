@@ -10,8 +10,7 @@ class Environment:  # TODO
         # capacity to total data to process later
     def get_data_to_process(self):
         # we want the amount of data during the day to generally look like a*(sin(x) + 2) + n_t,
-        # where n_t is some noise centred on 0 and a is a random value that is around 1 to
-        # control the "uncertainty"
+        # where n_t is some noise centred on 0 and a is a random value to control the "uncertainty"
     def get_availability(self):  # do spot VMs even tell us this?
     def get_current_vms(self):
     def get_on_peak_mins(self):  # on peak VMs * hours
