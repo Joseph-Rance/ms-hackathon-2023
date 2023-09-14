@@ -46,7 +46,7 @@ def main():
         metrics_baseline["reward"].append(environment_baseline.get_reward(*config["reward_weights"]))
 
         s = environment_rl.get_state_vector()
-        with torch.no_grad:
+        with torch.no_grad():
             num_vms = predict(model, s)
         environment_rl.step(num_vms)  # baseline run with constant number of VMs
         metrics_rl["availability"].append(environment_rl.get_availability())
