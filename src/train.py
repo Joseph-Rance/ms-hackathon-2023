@@ -1,7 +1,7 @@
 import numpy as np
 import torch.nn.functional as F
 from torch.optim import SGD
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 
 class SimpleDataset(Dataset):
     def __init__(self, x, y):
@@ -28,7 +28,7 @@ def train(environment, model, num_episodes, config):
     for episode in range(num_episodes):  # each iteration is one day simulation
 
         # reward y[i] comes after state x[i]
-        x, y = [], []
+        x, y = [], []  # TODO: add gamma
 
         environment.reset()
         # simulate to get dataset of tuple for each timestep (state + #VMs, value)
@@ -47,7 +47,7 @@ def train(environment, model, num_episodes, config):
 
         epoch_loss = total = correct = 0
         for x, y in loader:  # train on each pair of input, value in the loader
-            x, y = x.to("cuda"), y.to("cuda")  # (for )
+            x, y = x.to("cuda"), y.to("cuda")
 
             optimiser.zero_grad()
 
@@ -56,6 +56,8 @@ def train(environment, model, num_episodes, config):
 
             loss.backward()
             optimiser.step()  # update the model based on the loss
+
+    model.test()
 
 def predict(model, state, action_space):
     # returns how many VMs to use
@@ -68,7 +70,7 @@ def predict(model, state, action_space):
     best_value = -float("inf")
     best_action = None
     for a in action_space:
-        value = model.forward(np.append(state, a))
+        value = model(np.append(state, a))
         if best_value <= (val := value.item().cpu().numpy()):
             best_value = val
             best_action = a

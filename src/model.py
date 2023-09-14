@@ -2,10 +2,10 @@ import torch.nn as nn
 
 class FullyConnected(nn.Module):
 
-    def __init__(self, classes=10):
+    def __init__(self):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(5, 10),
+            nn.Linear(6, 10),
             nn.ReLU(inplace=True),
             nn.Linear(10, 1),
         )

@@ -22,10 +22,10 @@ def main():
     BASELINE_VMS = 1
 
     metrics_baseline = {
-        "availability": []
-        "num_vms": [BASELINE_VMS]*24
-        "data_to_process": []
-        "data_processed": []
+        "availability": [],
+        "num_vms": [BASELINE_VMS]*24,
+        "data_to_process": [],
+        "data_processed": [],
         "reward": []
     }
     metrics_rl = deepcopy(metrics_baseline)

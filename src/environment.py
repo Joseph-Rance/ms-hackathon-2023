@@ -7,7 +7,8 @@ class Environment:  # TODO: lots of made up values that need to be properly set!
         self.peak_hours = peak_hours
 
     def reset(self):  # resets to the start of the day
-        self.time = self.data_to_process = self.data_processed = self.cum_availability = self.on_peak_vm_hours = self.off_peak_vm_hours = 0
+        self.time = self.data_to_process = self.data_processed = self.cum_availability = \
+            self.on_peak_vm_hours = self.off_peak_vm_hours = 0
         self.current_vms = -1
         self.availability = int(np.random.nromal(loc=2 scale=5))
         self.a = np.random.nromal(loc=1, scale=0.05)
@@ -43,15 +44,14 @@ class Environment:  # TODO: lots of made up values that need to be properly set!
         return self.current_vms
 
     def get_on_peak_vm_hours(self):  # on peak VMs * hours
-        self.on_peak_vm_hours
+        return self.on_peak_vm_hours
 
     def get_off_peak_vm_hours(self):  # off peak VMs * hours
-        self.off_peak_vm_hours
+        return self.off_peak_vm_hours
 
     def get_state_vector(self):
         #  - data to process
         #  - data processed
-        #  - (data to process - data processed) = data remaining
         #  - time of day (hour / 24)
         #  - VM availability right now
         #  - VM availability so far (cumulative)
@@ -60,7 +60,6 @@ class Environment:  # TODO: lots of made up values that need to be properly set!
         return np.array([
             self.get_data_to_process() / 1_000_000_000,  # we deal in GB
             self.get_data_processed() / 1_000_000_000,
-            (self.get_data_to_process() - self.get_data_processed()) / 1_000_000_000,
             self.get_time() / 24,
             self.get_availability(),
             self.get_cum_availability(),
@@ -73,6 +72,6 @@ class Environment:  # TODO: lots of made up values that need to be properly set!
         # weighted by alpha, beta, and gamma respectively
 
         return alpha * self.get_on_peak_vm_hours() \
-             + beta * elf.get_off_peak_vm_hours() \
+             + beta * self.get_off_peak_vm_hours() \
              + gamma * int(self.get_data_to_process() - 128_000_000_000 > self.get_data_processed() \
                            and self.get_time() == 24)  # here we have 128MB slack on data processing requirements
