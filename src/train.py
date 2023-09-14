@@ -35,7 +35,7 @@ def train(environment, model, num_episodes, config):
         # simulate to get dataset of tuple for each timestep (state + #VMs, value)
         for hour in range(24):
             s = environment.get_state_vector()
-            num_vms = predict(model, s, action_space=range(min(20, environment.get_availability())))
+            num_vms = predict(model, s, action_space=range(20))
             environment.step(num_vms)
             r = environment.get_reward(*config["reward_weights"])
             x.append(s + [num_vms])
@@ -74,10 +74,10 @@ def predict(model, state, action_space):
     # 3. return the number of VMs that had the maximum v
 
     best_value = -float("inf")
-    best_action = None
+    best_action = [0]
     for a in action_space:
         value = model(torch.tensor(state + [a]).float())
-        if best_value <= (val := value.item().cpu().numpy()):
+        if best_value <= (val := value.item()):
             best_value = val
             best_action = a
 
