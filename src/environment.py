@@ -1,9 +1,9 @@
 import numpy as np
 import math
 
-class Environment:  # TODO: lots of made up values that need to be properly set!!!
+class Environment:
 
-    def __init__(self, peak_hours=range(8, 22)):
+    def __init__(self, peak_hours=list(range(8, 22))):
         self.reset()
         self.peak_hours = peak_hours
 
@@ -15,32 +15,33 @@ class Environment:  # TODO: lots of made up values that need to be properly set!
         self.a = np.random.normal(loc=1, scale=0.05)
 
     def step(self, num_vms):  # moves us forward one hour
-
         
-        # we want the amount of data during the day to generally look like scale*self.a*(sin(x/(2pi)) + 2) + n_t,
-        # where n_t is some noise centred on 0 and a is a random value to control the "uncertainty"
-        # hour 0 is midnight so make sure load lines up!
+        self.availability = max(0, int(np.random.normal(loc=self.availability, scale=5)))
+        self.cum_availability += self.availability
 
-        # I imagine data_processed will be proportional to the number of VMs. Will will check ratio of VM
-        # capacity to total data to process later
+        self.current_vms = min(self.availability, num_vms)
+        if self.time in self.peak_hours:
+            self.on_peak_vm_hours += self.current_vms
+        else:
+            self.off_peak_vm_hours += self.current_vms
 
-        # all data measurements are in bytes
+        scale = 4_000_000_000 / 3 # Based on the fact of 400GB of data being processed (previous data)
+        noise = np.random.normal(loc=0, scale=0.1)
+        self.data_to_process = scale * self.a * (math.sin(self.time * (math.pi / 12) - 2) + 2) + noise
+        self.data_processed = min(self.data_processed + self.current_vms * 150_000_000_000, self.data_to_process)
 
-        scale = 4_000_000_000 / 3 # Based on the fact of 400GB of data being processed by 3 VMs (previous data)
-
-        self.availability = max(int(np.random.normal(loc=5, scale=5)))
-        self.data_to_process = scale * (math.sin(self.time * (math.pi / 12) + self.a) + 2)
+        self.time += 1  # time corresponds to the hour that the step will start on
 
     def get_time(self):  # gets current timesteps in hours from the start of the day
         return self.time
 
-    def get_data_to_process(self):
+    def get_data_to_process(self):  # in bytes
         return self.data_to_process
 
     def get_data_processed(self):
         return self.data_processed
 
-    def get_availability(self):  # do spot VMs even tell us this?
+    def get_availability(self):  # availability of VMs in last hour
         return self.availability
 
     def get_cum_availability(self):  # cumulative availability

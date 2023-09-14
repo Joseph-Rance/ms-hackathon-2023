@@ -8,7 +8,7 @@ from torch.utils.data import Dataset, DataLoader
 class SimpleDataset(Dataset):
     def __init__(self, x, y):
         assert len(x) == len(y)
-        self.data = (np.array(x), np.array(y))
+        self.data = (np.array(x), np.array(y).reshape((-1, 1)))
 
     def __len__(self):
         return len(self.data[0])
@@ -54,11 +54,12 @@ def train(environment, model, num_episodes, config, device="cpu"):
 
         for x, y in loader:  # train on each pair of input, value in the loader
 
-            x, y = x.float().to(device), y.to(device)
+            x, y = x.float().to(device), y.float().to(device)
 
             optimiser.zero_grad()
 
             z = model(x)  # get model's prediction
+
             loss = F.cross_entropy(z, y)  # get the loss between the model's prediction and the true value
 
             loss.backward()
