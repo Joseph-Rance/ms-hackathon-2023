@@ -47,7 +47,7 @@ def main():
 
         s = environment_rl.get_state_vector()
         with torch.no_grad():
-            num_vms = predict(model, s)
+            num_vms = predict(model, s, action_space=range(20))
         environment_rl.step(num_vms)  # baseline run with constant number of VMs
         metrics_rl["availability"].append(environment_rl.get_availability())
         metrics_rl["num_vms"].append(num_vms)
