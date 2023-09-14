@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 class Environment:  # TODO: lots of made up values that need to be properly set!!!
 
@@ -25,7 +26,10 @@ class Environment:  # TODO: lots of made up values that need to be properly set!
 
         # all data measurements are in bytes
 
-        self.availability = int(np.random.normal(loc=5, scale=5))
+        scale = 4_000_000_000 / 3 # Based on the fact of 400GB of data being processed by 3 VMs (previous data)
+
+        self.availability = max(int(np.random.normal(loc=5, scale=5)))
+        self.data_to_process = scale * (math.sin(self.time * (math.pi / 12) + self.a) + 2)
 
     def get_time(self):  # gets current timesteps in hours from the start of the day
         return self.time
