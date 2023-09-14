@@ -7,7 +7,7 @@ from train import train, predict
 def main():
 
     DEVICE = "cpu"
-    NUM_EPISODES = 1
+    NUM_EPISODES = 500
 
     config = {
         "lr": 0.001,

@@ -13,8 +13,10 @@ class Environment:  # TODO: lots of made up values that need to be properly set!
         self.availability = int(np.random.normal(loc=5, scale=5))
         self.a = np.random.normal(loc=1, scale=0.05)
 
-    def step(self, num_vms):  # moves us forward one hour (TODO)
-        # we want the amount of data during the day to generally look like scale*self.a*(sin(x) + 2) + n_t,
+    def step(self, num_vms):  # moves us forward one hour
+
+        
+        # we want the amount of data during the day to generally look like scale*self.a*(sin(x/(2pi)) + 2) + n_t,
         # where n_t is some noise centred on 0 and a is a random value to control the "uncertainty"
         # hour 0 is midnight so make sure load lines up!
 
