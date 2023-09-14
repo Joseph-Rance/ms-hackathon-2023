@@ -1,4 +1,4 @@
-class Environment:
+class Environment:  # TODO
 
     def __init__(self):
     def reset(self):  # resets to the start of the day
@@ -25,6 +25,7 @@ class Environment:
         #  - VM availability so far (cumulative)
         #  - VM availability right now
         #  - current number of VMs being used
+        # REMEMBER TO SCALE THIS NICELY
     def get_reward(self, alpha, beta, gamma):
         # reward
         #  - #VM * minutes on peak

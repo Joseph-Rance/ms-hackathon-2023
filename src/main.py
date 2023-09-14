@@ -1,10 +1,8 @@
 from environment import Environment
 from model import FullyConnected
-from simulate import train, predict
+from train import train, predict
 
-if __name__ == "__main__":
-
-    from copy import deepcopy
+def main():
 
     NUM_EPISODES = 1
 
@@ -56,3 +54,8 @@ if __name__ == "__main__":
     # plot graphs & compute environmental benefits!
 
     # TODO: see comment above - use metrics_baseline & metrics_rl
+
+if __name__ == "__main__":
+
+    from copy import deepcopy
+    main()

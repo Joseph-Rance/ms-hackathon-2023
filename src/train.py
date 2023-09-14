@@ -29,7 +29,7 @@ def train(environment, model, num_episodes, config):
         # simulate to get dataset of tuple for each timestep (state + #VMs, value)
         for hour in range(24):
             s = environment.get_state_vector()
-            num_vms = predict(model, s)
+            num_vms = predict(model, s, action_space=range(min(20, environment.get_availability())))
             environment.step(num_vms)
             r = environment.get_reward(*config["reward_weights"])
             x.append(s)
@@ -52,13 +52,20 @@ def train(environment, model, num_episodes, config):
             loss.backward()
             optimiser.step()  # update the model based on the loss
 
-def predict(model, state):
-    # inputs:
-    #  - current state
-    # output:
-    #  - how many VMs to use
+def predict(model, state, action_space):
+    # returns how many VMs to use
     #
     # v = -infinity
     # 1. loop over each number of VMs (0, 1, 2, ... num_available)
     # 2.    v <- max(v, M(state, number of VMs))
     # 3. return the number of VMs that had the maximum v
+
+    best_value = -float("inf")
+    best_action = None
+    for a in action_space:
+        value = model.forward(np.append(state, a))
+        if best_value <= (val := value.item().cpu().numpy()):
+            best_value = val
+            best_action = a
+
+    return a
