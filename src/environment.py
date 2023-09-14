@@ -13,3 +13,18 @@ class Environment:
     def get_current_vms(self):
     def get_on_peak_mins(self):  # on peak VMs * hours
     def get_off_peak_mins(self):  # off peak VMs * hours
+    def get_state_vector(self):
+        # state is:
+        #  - data to process
+        #  - data processed
+        #  - (data to process - data processed) = data remaining
+        #  - time of day (hour / 24)
+        #  - VM availability so far (cumulative)
+        #  - VM availability right now
+        #  - current number of VMs being used
+    def get_reward(self, alpha, beta, gamma):
+        # reward
+        #  - #VM * minutes on peak
+        #  - #VM * minutes off peak
+        #  - 1 if data is processed by the end of the day else 0
+        # weighted by alpha, beta, and gamma respectively
