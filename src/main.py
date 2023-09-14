@@ -1,3 +1,5 @@
+import torch
+
 from environment import Environment
 from model import FullyConnected
 from train import train, predict
@@ -13,7 +15,7 @@ def main():
         "gamma": 1,
     }
 
-    model = FullyConnected()
+    model = FullyConnected().to("cuda")
     environment = Environment()
 
     train(environment, model, NUM_EPISODES, config)
@@ -36,7 +38,7 @@ def main():
 
     environment_rl.a = environment_baseline.a  # make sure this is a fair test
 
-    for hour in range(24):
+    for _ in range(24):
         environment_baseline.step(BASELINE_VMS)  # baseline run with constant number of VMs
         metrics_baseline["availability"].append(environment_baseline.get_availability())
         metrics_baseline["data_to_process"].append(environment_baseline.get_data_processed())
@@ -44,7 +46,8 @@ def main():
         metrics_baseline["reward"].append(environment_baseline.get_reward(*config["reward_weights"]))
 
         s = environment_rl.get_state_vector()
-        num_vms = predict(model, s)
+        with torch.no_grad:
+            num_vms = predict(model, s)
         environment_rl.step(num_vms)  # baseline run with constant number of VMs
         metrics_rl["availability"].append(environment_rl.get_availability())
         metrics_rl["num_vms"].append(num_vms)

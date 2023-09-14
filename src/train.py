@@ -26,14 +26,14 @@ def train(environment, model, num_episodes, config):
 
     model.train()  # put the model in "training mode"
 
-    for episode in range(num_episodes):  # each iteration is one day simulation
+    for _ in range(num_episodes):  # each iteration is one day simulation
 
         # reward y[i] comes after state x[i]
         x, y = [], []
 
         environment.reset()
         # simulate to get dataset of tuple for each timestep (state + #VMs, value)
-        for hour in range(24):
+        for _ in range(24):
             s = environment.get_state_vector()
             num_vms = predict(model, s, action_space=range(20))
             environment.step(num_vms)
@@ -51,19 +51,17 @@ def train(environment, model, num_episodes, config):
         # this allows us to efficiently load the data into our model
         loader = DataLoader(dataset, batch_size=1, shuffle=True)
 
-        epoch_loss = total = correct = 0
         for x, y in loader:  # train on each pair of input, value in the loader
-            x, y = x.to("cuda"), y.to("cuda")
+
+            x, y = torch.tensor(x.float()).to("cuda"), torch.tensor(y).to("cuda")
 
             optimiser.zero_grad()
 
-            z = self.model(torch.tensor(x.float()))  # get model's prediction
+            z = model(x)  # get model's prediction
             loss = F.cross_entropy(z, y)  # get the loss between the model's prediction and the true value
 
             loss.backward()
             optimiser.step()  # update the model based on the loss
-
-    model.test()
 
 def predict(model, state, action_space):
     # returns how many VMs to use
@@ -76,7 +74,7 @@ def predict(model, state, action_space):
     best_value = -float("inf")
     best_action = [0]
     for a in action_space:
-        value = model(torch.tensor(state + [a]).float())
+        value = model(torch.tensor(state + [a]).float().to("cuda"))
         if best_value <= (val := value.item()):
             best_value = val
             best_action = a
