@@ -5,7 +5,7 @@ class FullyConnected(nn.Module):
     def __init__(self):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(6, 10),
+            nn.Linear(7, 10),
             nn.ReLU(inplace=True),
             nn.Linear(10, 1),
         )

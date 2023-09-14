@@ -37,7 +37,7 @@ def train(environment, model, num_episodes, config):
             num_vms = predict(model, s, action_space=range(min(20, environment.get_availability())))
             environment.step(num_vms)
             r = environment.get_reward(*config["reward_weights"])
-            x.append(s)
+            x.append(s + [num_vms])
             y.append(r)
 
         current = 0  # reduces weight of rewards that are further away
@@ -56,7 +56,7 @@ def train(environment, model, num_episodes, config):
 
             optimiser.zero_grad()
 
-            z = self.model(x)  # get model's prediction
+            z = self.model(torch.tensor(x))  # get model's prediction
             loss = F.cross_entropy(z, y)  # get the loss between the model's prediction and the true value
 
             loss.backward()
@@ -75,7 +75,7 @@ def predict(model, state, action_space):
     best_value = -float("inf")
     best_action = None
     for a in action_space:
-        value = model(np.append(state, a))
+        value = model(torch.tensor(np.append(state, a)))
         if best_value <= (val := value.item().cpu().numpy()):
             best_value = val
             best_action = a
