@@ -28,7 +28,7 @@ def train(environment, model, num_episodes, config):
     for episode in range(num_episodes):  # each iteration is one day simulation
 
         # reward y[i] comes after state x[i]
-        x, y = [], []  # TODO: add gamma
+        x, y = [], []
 
         environment.reset()
         # simulate to get dataset of tuple for each timestep (state + #VMs, value)
@@ -39,6 +39,11 @@ def train(environment, model, num_episodes, config):
             r = environment.get_reward(*config["reward_weights"])
             x.append(s)
             y.append(r)
+
+        current = 0  # reduces weight of rewards that are further away
+        for i in range(len(y)-1, -1, -1):
+            current = current * config["gamma"] + y[i]
+            y[i] = current
 
         dataset = SimpleDataset(x, y)
 

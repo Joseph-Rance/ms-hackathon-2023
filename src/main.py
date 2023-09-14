@@ -9,7 +9,8 @@ def main():
     config = {
         "lr": 0.001,
         "momentum": 0.9,
-        "reward_weights": (100, 2, 1)
+        "reward_weights": (100, 2, 1),
+        "gamma": 1,
     }
 
     model = FullyConnected()
