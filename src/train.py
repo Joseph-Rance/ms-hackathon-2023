@@ -1,3 +1,4 @@
+from tqdm import tqdm
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -15,7 +16,7 @@ class SimpleDataset(Dataset):
     def __getitem__(self, idx):
         return self.data[0][idx], self.data[1][idx]
 
-def train(environment, model, num_episodes, config):
+def train(environment, model, num_episodes, config, device="cpu"):
     # 0. simulate a full run using our model and the environment
     #     - for each timestep (hour) we want to store the current state and the reward
     # 1. compute the "value" of each state based on the rewards we stored
@@ -26,7 +27,7 @@ def train(environment, model, num_episodes, config):
 
     model.train()  # put the model in "training mode"
 
-    for _ in range(num_episodes):  # each iteration is one day simulation
+    for _ in tqdm(range(num_episodes)):  # each iteration is one day simulation
 
         # reward y[i] comes after state x[i]
         x, y = [], []
@@ -35,7 +36,7 @@ def train(environment, model, num_episodes, config):
         # simulate to get dataset of tuple for each timestep (state + #VMs, value)
         for _ in range(24):
             s = environment.get_state_vector()
-            num_vms = predict(model, s, action_space=range(20))
+            num_vms = predict(model, s, action_space=range(20), device=device)
             environment.step(num_vms)
             r = environment.get_reward(*config["reward_weights"])
             x.append(s + [num_vms])
@@ -53,7 +54,7 @@ def train(environment, model, num_episodes, config):
 
         for x, y in loader:  # train on each pair of input, value in the loader
 
-            x, y = x.float().to("cuda"), y.to("cuda")
+            x, y = x.float().to(device), y.to(device)
 
             optimiser.zero_grad()
 
@@ -63,7 +64,7 @@ def train(environment, model, num_episodes, config):
             loss.backward()
             optimiser.step()  # update the model based on the loss
 
-def predict(model, state, action_space):
+def predict(model, state, action_space, device="cpu"):
     # returns how many VMs to use
     #
     # v = -infinity
@@ -74,7 +75,7 @@ def predict(model, state, action_space):
     best_value = -float("inf")
     best_action = [0]
     for a in action_space:
-        value = model(torch.tensor(state + [a]).float().to("cuda"))
+        value = model(torch.tensor(state + [a]).float().to(device))
         if best_value <= (val := value.item()):
             best_value = val
             best_action = a

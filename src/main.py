@@ -6,6 +6,7 @@ from train import train, predict
 
 def main():
 
+    DEVICE = "cpu"
     NUM_EPISODES = 1
 
     config = {
@@ -15,10 +16,14 @@ def main():
         "gamma": 1,
     }
 
-    model = FullyConnected().to("cuda")
+    print("constructing model")
+    model = FullyConnected().to(DEVICE)
+
+    print("constructing environment")
     environment = Environment()
 
-    train(environment, model, NUM_EPISODES, config)
+    print("training model")
+    train(environment, model, NUM_EPISODES, config, device=DEVICE)
 
     # example run
 
@@ -33,11 +38,13 @@ def main():
     }
     metrics_rl = deepcopy(metrics_baseline)
 
+    print("constructing test environment")
     environment_baseline = Environment()
     environment_rl = Environment()
 
     environment_rl.a = environment_baseline.a  # make sure this is a fair test
 
+    print("running test")
     for _ in range(24):
         environment_baseline.step(BASELINE_VMS)  # baseline run with constant number of VMs
         metrics_baseline["availability"].append(environment_baseline.get_availability())
@@ -58,6 +65,8 @@ def main():
     # plot graphs & compute environmental benefits!
 
     # TODO: see comment above - use metrics_baseline & metrics_rl
+
+    print("temp results:", metrics_baseline, metrics_rl)
 
 if __name__ == "__main__":
 
