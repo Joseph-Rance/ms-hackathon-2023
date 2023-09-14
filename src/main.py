@@ -23,7 +23,7 @@ def main():
     environment = Environment()
 
     print("training model")
-    train(environment, model, NUM_EPISODES, config, device=DEVICE)
+    losses = train(environment, model, NUM_EPISODES, config, device=DEVICE)
 
     # example run
 
@@ -66,6 +66,7 @@ def main():
 
     # TODO: see comment above - use metrics_baseline & metrics_rl
 
+    print("losses:", losses)
     print("temp results:", metrics_baseline, metrics_rl)
 
 if __name__ == "__main__":

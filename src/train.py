@@ -52,6 +52,8 @@ def train(environment, model, num_episodes, config, device="cpu"):
         # this allows us to efficiently load the data into our model
         loader = DataLoader(dataset, batch_size=1, shuffle=True)
 
+        losses = []
+
         for x, y in loader:  # train on each pair of input, value in the loader
 
             x, y = x.float().to(device), y.float().to(device)
@@ -61,9 +63,12 @@ def train(environment, model, num_episodes, config, device="cpu"):
             z = model(x)  # get model's prediction
 
             loss = F.cross_entropy(z, y)  # get the loss between the model's prediction and the true value
+            losses.append(loss)
 
             loss.backward()
             optimiser.step()  # update the model based on the loss
+
+    return losses
 
 def predict(model, state, action_space, device="cpu"):
     # returns how many VMs to use
