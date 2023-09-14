@@ -10,8 +10,8 @@ class Environment:  # TODO: lots of made up values that need to be properly set!
         self.time = self.data_to_process = self.data_processed = self.cum_availability = \
             self.on_peak_vm_hours = self.off_peak_vm_hours = 0
         self.current_vms = -1
-        self.availability = int(np.random.nromal(loc=2 scale=5))
-        self.a = np.random.nromal(loc=1, scale=0.05)
+        self.availability = int(np.random.normal(loc=2, scale=5))
+        self.a = np.random.normal(loc=1, scale=0.05)
 
     def step(self, num_vms):  # moves us forward one hour (TODO)
         # we want the amount of data during the day to generally look like scale*self.a*(sin(x) + 2) + n_t,
@@ -23,7 +23,7 @@ class Environment:  # TODO: lots of made up values that need to be properly set!
 
         # all data measurements are in bytes
 
-        self.availability = int(np.random.nromal(loc=2 scale=5))
+        self.availability = int(np.random.normal(loc=2, scale=5))
 
     def get_time(self):  # gets current timesteps in hours from the start of the day
         return self.time
