@@ -63,7 +63,7 @@ def train(environment, model, num_episodes, config, device="cpu"):
             z = model(x)  # get model's prediction
 
             loss = F.cross_entropy(z, y)  # get the loss between the model's prediction and the true value
-            losses.append(loss)
+            losses.append(loss.item())
 
             loss.backward()
             optimiser.step()  # update the model based on the loss
