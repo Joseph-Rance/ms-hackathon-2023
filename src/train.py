@@ -53,7 +53,7 @@ def train(environment, model, num_episodes, config):
 
         for x, y in loader:  # train on each pair of input, value in the loader
 
-            x, y = torch.tensor(x.float()).to("cuda"), torch.tensor(y).to("cuda")
+            x, y = x.float().to("cuda"), y.to("cuda")
 
             optimiser.zero_grad()
 
