@@ -36,7 +36,7 @@ You should expect to see an output similar to:
 constructing model
 constructing environment
 training model
- 12%|    ██████████████▎                                                                                                      | 609/5000 [00:37<05:12, 14.04it/s]
+  3%|▉                                    | 130/5000 [00:04<04:14, 19.14it/s]
 ```
 
 ## Results
