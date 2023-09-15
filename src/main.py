@@ -8,15 +8,13 @@ def main():
     DEVICE = "cpu"
 
     config = {
-        "lr": 0.00001,
-        "num_updates": 150,
+        "num_updates": 5000,
         "episodes_per_update": 10,
-        "batch_size": 24,
-        "momentum": 0,
-        "reward_weights": (1, 1, 0),  # on peak, off peak, completion
-        "gamma": 0,
+        "batch_size": 24*10,
+        "reward_weights": (2, 1, 1000),  # on peak, off peak, completion
+        "gamma": 0.25,
         "epsilon": 1.0,
-        "epsilon_decay": 0.97,
+        "epsilon_decay": 0.99
     }
 
     print("constructing model")
@@ -75,23 +73,18 @@ def main():
         metrics_rl["data_processed"].append(environment_rl.get_data_processed())
         metrics_rl["reward"].append(environment_rl.get_reward(*config["reward_weights"]))
 
-    # plot graphs & compute environmental benefits!
+    # plot graphs & compute environmental benefits
 
-    # TODO: see comment above - use metrics_baseline & metrics_rl
+    print("results:", metrics_baseline, metrics_rl)  # TEMP
 
-    print("temp results:", metrics_baseline, metrics_rl)
+    visualise_data_processed(metrics_rl["data_processed"])
 
     plt.plot(smooth_rewards)
-    plt.savefig("temp_graph_rewards.png")
+    plt.savefig("graphs/rewards.png")
     plt.close()
     plt.plot([log(i) for i in smooth_losses])
-    plt.savefig("temp_graph_losses.png")
+    plt.savefig("graphs/losses.png")
     plt.close()
-    plt.plot(metrics_rl["data_to_process"])
-    plt.plot(metrics_rl["data_processed"])
-    plt.savefig("temp_graph.png")
-    
-    visualise_data_processed(metrics_rl["data_processed"])
 
 if __name__ == "__main__":
 

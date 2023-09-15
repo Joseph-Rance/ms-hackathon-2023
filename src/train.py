@@ -3,7 +3,7 @@ from tqdm import tqdm
 import numpy as np
 import torch
 import torch.nn.functional as F
-from torch.optim import SGD
+from torch.optim import Adam
 from torch.utils.data import Dataset, DataLoader
 
 class SimpleDataset(Dataset):
@@ -27,7 +27,7 @@ def train(environment, model, config, device="cpu"):
 
     epsilon = config["epsilon"]
 
-    optimiser = SGD(model.parameters(), lr=config["lr"], momentum=config["momentum"])
+    optimiser = Adam(model.parameters())
     model.train()  # put the model in "training mode"
 
     losses = []
@@ -40,29 +40,29 @@ def train(environment, model, config, device="cpu"):
 
         for _ in range(config["episodes_per_update"]):
 
-            y_tmp = []
+            with torch.no_grad():
 
-            environment.reset()
-            # simulate to get dataset of tuple for each timestep (state + #VMs, value)
-            for _ in range(24):
-                s = environment.get_state_vector()
-                if random() < epsilon:
-                    num_vms = choice(range(5))
-                else:
-                    num_vms = predict(model, s, action_space=range(5), device=device)
-                environment.step(num_vms)
-                r = environment.get_reward(*config["reward_weights"])
-                x.append(s + [num_vms])
-                y_tmp.append(r)
+                y_tmp = []
 
-            current = 0  # reduces weight of rewards that are further away
-            for i in range(len(y_tmp)-1, -1, -1):
-                current = current * config["gamma"] + y_tmp[i]
-                y_tmp[i] = current
+                environment.reset()
+                # simulate to get dataset of tuple for each timestep (state + #VMs, value)
+                for _ in range(24):
+                    s = environment.get_state_vector()
+                    if random() < epsilon:
+                        num_vms = choice(range(5))
+                    else:
+                        num_vms = predict(model, s, action_space=range(5), device=device)
+                    environment.step(num_vms)
+                    r = environment.get_reward(*config["reward_weights"])
+                    x.append(s + [num_vms])
+                    y_tmp.append(r)
 
-            y += y_tmp
+                current = 0  # reduces weight of rewards that are further away
+                for i in range(len(y_tmp)-1, -1, -1):
+                    current = current * config["gamma"] + y_tmp[i]
+                    y_tmp[i] = current
 
-        #print(list(zip(x, y, model(torch.tensor(x)))))
+                y += y_tmp
 
         rewards.append(sum(y))
 
@@ -79,7 +79,7 @@ def train(environment, model, config, device="cpu"):
 
             z = model(x)  # get model's prediction
 
-            loss = F.mse_loss(z, y)  # get the loss between the model's prediction and the true value
+            loss = F.mse_loss(y, z)  # get the loss between the model's prediction and the true value
             losses.append(loss.item())
 
             loss.backward()
@@ -98,9 +98,9 @@ def predict(model, state, action_space, device="cpu"):
     # 3. return the number of VMs that had the maximum v
 
     best_value = -float("inf")
-    best_action = [0]
+    best_action = 0
     for a in action_space:
-        value = model(torch.tensor(state + [a]).float().to(device))
+        value = model(torch.tensor(state + [a]).float().to(device))[0]
         if best_value <= (val := value.item()):
             best_value = val
             best_action = a

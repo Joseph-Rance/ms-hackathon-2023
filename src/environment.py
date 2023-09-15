@@ -68,12 +68,12 @@ class Environment:
         #  - current number of VMs being used
 
         return [
-            self.get_data_to_process() / 1_000_000_000,  # we deal in GB
-            self.get_data_processed() / 1_000_000_000,
+            self.get_data_to_process() / 1_000_000_000_000,  # we deal in TB
+            self.get_data_processed() / 1_000_000_000_000,
             self.get_time() / 24,
-            self.get_availability(),
-            self.get_cum_availability(),
-            self.get_current_vms(),
+            self.get_availability() / 10,
+            self.get_cum_availability() / 100,
+            self.get_current_vms() / 10,
         ]
     def get_reward(self, alpha, beta, gamma):
         #  - #VM * minutes on peak
