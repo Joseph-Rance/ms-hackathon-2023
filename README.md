@@ -1,3 +1,5 @@
+Microsoft Global Hackathon 2023 (last two days)
+
 ## Motivation
 
 Azure VMs run on 60% renewable energy. However, usage fluctuates throughout the day. We could assume that due to fluctuations in renewable energy generation and server usage, during some parts of the day an Azure datacentre might be entirely run on renewable energy, while at other times it may be far less than 60% usage.
@@ -25,6 +27,10 @@ Reward: (α * #VM * minutes on peak) + (β * #VM * minutes off peak) + (γ if da
 
 Used some kind of approximate monte carlo method with episodes split into discrete days.
 
+## Current state
+
+This repo will run, loss will decrease, and it will produce some results. If you change the reward weights, the output changes as you would expect, but the overall results still need some work to be actually useful in reducing environmental impact.
+
 ## Running
 
 Device is currently set to CPU so it should be possible to run after pip installing requirements.txt. Run with:
@@ -41,7 +47,7 @@ training model
 
 ## Results
 
-Model successfully learned value function. Loss graph:
+Model successfully learned value function. Log loss graph:
 
 ![loss graph](graphs/losses.png)
 
