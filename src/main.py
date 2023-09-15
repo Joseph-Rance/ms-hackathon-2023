@@ -3,6 +3,7 @@ import torch
 from environment import Environment
 from model import FullyConnected
 from train import train, predict
+from visualisation import visualise_data_processed
 
 def main():
 
@@ -68,6 +69,8 @@ def main():
 
     print("losses:", losses)
     print("temp results:", metrics_baseline, metrics_rl)
+
+    visualise_data_processed(metrics_rl["data_processed"])
 
 if __name__ == "__main__":
 
