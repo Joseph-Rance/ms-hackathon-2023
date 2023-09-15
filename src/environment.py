@@ -11,12 +11,12 @@ class Environment:
         self.time = self.data_to_process = self.data_processed = self.cum_availability = \
             self.on_peak_vm_hours = self.off_peak_vm_hours = 0
         self.current_vms = -1
-        self.availability = int(np.random.normal(loc=15, scale=2))
+        self.availability = round(np.random.normal(loc=15, scale=2))
         self.a = np.random.normal(loc=1, scale=0.05)
 
     def step(self, num_vms):  # moves us forward one hour
         
-        self.availability = max(0, int(np.random.normal(loc=self.availability, scale=1)))
+        self.availability = max(0, round(np.random.normal(loc=self.availability, scale=1)))
         self.cum_availability += self.availability
 
         self.current_vms = min(self.availability, num_vms)
@@ -83,5 +83,5 @@ class Environment:
 
         return - alpha * self.is_on_peak() * self.current_vms \
                - beta * (1 - self.is_on_peak()) * self.current_vms \
-               + gamma * int(self.get_data_to_process() + 128_000_000_000 > self.get_data_processed() \
+               + gamma * int(self.get_data_to_process() < 1.2 * self.get_data_processed() \
                              and self.get_time() == 24)  # here we have 128MB slack on data processing requirements

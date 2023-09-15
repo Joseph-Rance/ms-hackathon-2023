@@ -29,24 +29,29 @@ def train(environment, model, config, device="cpu"):
     model.train()  # put the model in "training mode"
 
     losses = []
+    rewards = []
 
-    for _ in tqdm(range(config["num_episodes"])):  # each iteration is one day simulation
+    for _ in tqdm(range(config["num_updates"])):  # each iteration is one day simulation
 
         # reward y[i] comes after state x[i]
         x, y = [], []
 
-        environment.reset()
-        # simulate to get dataset of tuple for each timestep (state + #VMs, value)
-        for _ in range(24):
-            s = environment.get_state_vector()
-            if random() < config["epsilon"]:
-                num_vms = choice(range(20))
-            else:
-                num_vms = predict(model, s, action_space=range(20), device=device)
-            environment.step(num_vms)
-            r = environment.get_reward(*config["reward_weights"])
-            x.append(s + [num_vms])
-            y.append(r)
+        for _ in range(config["episodes_per_update"]):
+
+            environment.reset()
+            # simulate to get dataset of tuple for each timestep (state + #VMs, value)
+            for _ in range(24):
+                s = environment.get_state_vector()
+                if random() < config["epsilon"]:
+                    num_vms = choice(range(20))
+                else:
+                    num_vms = predict(model, s, action_space=range(20), device=device)
+                environment.step(num_vms)
+                r = environment.get_reward(*config["reward_weights"])
+                x.append(s + [num_vms])
+                y.append(r)
+
+        rewards.append(sum(y))
 
         current = 0  # reduces weight of rewards that are further away
         for i in range(len(y)-1, -1, -1):
@@ -56,7 +61,7 @@ def train(environment, model, config, device="cpu"):
         dataset = SimpleDataset(x, y)
 
         # this allows us to efficiently load the data into our model
-        loader = DataLoader(dataset, batch_size=1, shuffle=True)
+        loader = DataLoader(dataset, batch_size=config["batch_size"], shuffle=True)
 
         losses.append(0)
 
@@ -74,7 +79,7 @@ def train(environment, model, config, device="cpu"):
             loss.backward()
             optimiser.step()  # update the model based on the loss
 
-    return losses
+    return losses, rewards
 
 def predict(model, state, action_space, device="cpu"):
     # returns how many VMs to use
