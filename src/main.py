@@ -1,6 +1,7 @@
 from environment import Environment
 from model import FullyConnected
 from train import train, predict
+from visualisation import visualise_data_processed
 
 def main():
 
@@ -74,6 +75,8 @@ def main():
     plt.plot(metrics_rl["data_to_process"])
     plt.plot(metrics_baseline["data_processed"])
     plt.savefig("temp_graph.png")
+    
+    visualise_data_processed(metrics_rl["data_processed"])
 
 if __name__ == "__main__":
 
