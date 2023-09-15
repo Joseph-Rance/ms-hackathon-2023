@@ -24,8 +24,10 @@ def train(environment, model, config, device="cpu"):
     # 2. train the model to map from state -> reward
 
     # this is the optimiser we will use to train
-    optimiser = SGD(model.parameters(), lr=config["lr"], momentum=config["momentum"])
 
+    epsilon = config["epsilon"]
+
+    optimiser = SGD(model.parameters(), lr=config["lr"], momentum=config["momentum"])
     model.train()  # put the model in "training mode"
 
     losses = []
@@ -38,32 +40,36 @@ def train(environment, model, config, device="cpu"):
 
         for _ in range(config["episodes_per_update"]):
 
+            y_tmp = []
+
             environment.reset()
             # simulate to get dataset of tuple for each timestep (state + #VMs, value)
             for _ in range(24):
                 s = environment.get_state_vector()
-                if random() < config["epsilon"]:
-                    num_vms = choice(range(20))
+                if random() < epsilon:
+                    num_vms = choice(range(5))
                 else:
-                    num_vms = predict(model, s, action_space=range(20), device=device)
+                    num_vms = predict(model, s, action_space=range(5), device=device)
                 environment.step(num_vms)
                 r = environment.get_reward(*config["reward_weights"])
                 x.append(s + [num_vms])
-                y.append(r)
+                y_tmp.append(r)
+
+            current = 0  # reduces weight of rewards that are further away
+            for i in range(len(y_tmp)-1, -1, -1):
+                current = current * config["gamma"] + y_tmp[i]
+                y_tmp[i] = current
+
+            y += y_tmp
+
+        #print(list(zip(x, y, model(torch.tensor(x)))))
 
         rewards.append(sum(y))
-
-        current = 0  # reduces weight of rewards that are further away
-        for i in range(len(y)-1, -1, -1):
-            current = current * config["gamma"] + y[i]
-            y[i] = current
 
         dataset = SimpleDataset(x, y)
 
         # this allows us to efficiently load the data into our model
         loader = DataLoader(dataset, batch_size=config["batch_size"], shuffle=True)
-
-        losses.append(0)
 
         for x, y in loader:  # train on each pair of input, value in the loader
 
@@ -74,10 +80,12 @@ def train(environment, model, config, device="cpu"):
             z = model(x)  # get model's prediction
 
             loss = F.mse_loss(z, y)  # get the loss between the model's prediction and the true value
-            losses[-1] += loss.item()
+            losses.append(loss.item())
 
             loss.backward()
             optimiser.step()  # update the model based on the loss
+
+        epsilon = epsilon * config["epsilon_decay"]
 
     return losses, rewards
 

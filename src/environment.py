@@ -16,7 +16,7 @@ class Environment:
 
     def step(self, num_vms):  # moves us forward one hour
         
-        self.availability = max(0, round(np.random.normal(loc=self.availability, scale=1)))
+        self.availability = max(0, round(np.random.normal(loc=self.availability, scale=0.001)))
         self.cum_availability += self.availability
 
         self.current_vms = min(self.availability, num_vms)
@@ -26,7 +26,7 @@ class Environment:
             self.off_peak_vm_hours += self.current_vms
 
         scale = 400_000_000_000 / 3 # max ~400GB of data being processed per hour
-        noise = np.random.normal(loc=0, scale=0.1)
+        noise = np.random.normal(loc=0, scale=0.001)
         self.data_to_process += scale * self.a * (math.sin(self.time * (math.pi / 12) - 2) + 2) + noise
         self.data_processed = min(self.data_processed + self.current_vms * 150_000_000_000, self.data_to_process)
 

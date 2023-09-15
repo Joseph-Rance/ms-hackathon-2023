@@ -8,14 +8,15 @@ def main():
     DEVICE = "cpu"
 
     config = {
-        "lr": 0.0001,
-        "num_updates": 500,
+        "lr": 0.00001,
+        "num_updates": 150,
         "episodes_per_update": 10,
-        "batch_size": 24*10,
-        "momentum": 0.9,
+        "batch_size": 24,
+        "momentum": 0,
         "reward_weights": (1, 1, 0),  # on peak, off peak, completion
-        "gamma": 1,
-        "epsilon": 0.1,
+        "gamma": 0,
+        "epsilon": 1.0,
+        "epsilon_decay": 0.97,
     }
 
     print("constructing model")
@@ -27,7 +28,7 @@ def main():
     print("training model")
     losses, rewards = train(environment, model, config, device=DEVICE)
 
-    SMOOTHING = 10
+    SMOOTHING = 30
     smooth_losses, smooth_rewards = [], []
     for i in range(len(losses) - SMOOTHING):
         smooth_losses.append(sum(losses[i:i+SMOOTHING]))
@@ -65,7 +66,7 @@ def main():
 
         s = environment_rl.get_state_vector()
         with torch.no_grad():
-            num_vms = predict(model, s, action_space=range(20))
+            num_vms = predict(model, s, action_space=range(5))
         environment_rl.step(num_vms)  # baseline run with constant number of VMs
         metrics_rl["availability"].append(environment_rl.get_availability())
         metrics_rl["req_num_vms"].append(num_vms)
@@ -83,7 +84,7 @@ def main():
     plt.plot(smooth_rewards)
     plt.savefig("temp_graph_rewards.png")
     plt.close()
-    plt.plot(smooth_losses)
+    plt.plot([log(i) for i in smooth_losses])
     plt.savefig("temp_graph_losses.png")
     plt.close()
     plt.plot(metrics_rl["data_to_process"])
@@ -94,6 +95,7 @@ def main():
 
 if __name__ == "__main__":
 
+    from math import log
     from copy import deepcopy
     import random
     import numpy as np
