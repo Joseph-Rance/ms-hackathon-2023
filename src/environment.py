@@ -25,7 +25,7 @@ class Environment:
         else:
             self.off_peak_vm_hours += self.current_vms
 
-        scale = 400_000_000_000 / 3 # max amount of ~400GB of data being processed per hour
+        scale = 400_000_000_000 / 3 # max ~400GB of data being processed per hour
         noise = np.random.normal(loc=0, scale=0.001)
         self.data_to_process += scale * self.a * (math.sin(self.time * (math.pi / 12) - 2) + 2) + noise
         self.data_processed = min(self.data_processed + self.current_vms * 150_000_000_000, self.data_to_process)
