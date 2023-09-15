@@ -80,9 +80,11 @@ def main():
     visualise_data_processed(metrics_rl["data_processed"])
 
     plt.plot(smooth_rewards)
+    plt.title('reward over time')
     plt.savefig("graphs/rewards.png")
     plt.close()
     plt.plot([log(i) for i in smooth_losses])
+    plt.title('loss over time')
     plt.savefig("graphs/losses.png")
     plt.close()
 
